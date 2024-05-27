@@ -1,4 +1,4 @@
-class AppError extends Error {
+export class AppError extends Error {
   statusCode: number
   status: string
   isOperational: boolean
@@ -12,4 +12,8 @@ class AppError extends Error {
     Error.captureStackTrace(this, this.constructor)
   }
 }
-export default AppError
+
+const createError = (message:string, statusCode:number) =>{
+  return new AppError(message, statusCode)
+} 
+export default createError

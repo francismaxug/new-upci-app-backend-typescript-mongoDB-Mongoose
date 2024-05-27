@@ -54,6 +54,11 @@ const userAdminSchema = new Schema<IUserSchema>(
       type: String,
       required: [true, "Password is required"]
     },
+    position:{
+      enum:["Head Pastor","Deacon", "Admin", "Acountant / Finance", "Ministry Leader"],
+      type:String,
+      default:"Admin"
+    },
 
     isSubmitFullDetails: {
       type: Boolean,
