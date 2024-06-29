@@ -13,7 +13,7 @@ declare module "express-serve-static-core" {
 }
 const protect = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    // console.log(req)
+    console.log(req)
     let token
 
     token = req.cookies.session
@@ -26,13 +26,13 @@ const protect = catchAsync(
       process.env.JWT_SECRET!
     ) as jwt.JwtPayload
     console.log(decodeUser)
-    if (!decodeUser) return  next(createError("no token found", 404))
+    if (!decodeUser) return next(createError("no token found", 404))
 
     const currentUser = await UserAdmin.findById(decodeUser.user._id).select(
       "-password"
     )
     // console.log(currentUser)
-    if (!currentUser) return  next(createError("no token found", 404))
+    if (!currentUser) return next(createError("no token found", 404))
     req.user = currentUser
     next()
   }

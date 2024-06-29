@@ -1,42 +1,15 @@
 import { ReqBody } from "../interfaces/body"
-import UserAdmin from "../models/adminModel"
 import { IAppContext } from "../types/app"
 import createError from "../utils/appError"
-import AppError from "../utils/appError"
 import { catchAsync } from "../utils/catchAsync"
 import { Request, Response, NextFunction } from "express"
-import validateAdmin from "../validators/admin"
-// import getToken from "../utils/token.js"
-
-// const adminLogin = catchAsync(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     // console.log(req)
-//     const { adminID, password } = req.body
-//     console.log(adminID, password)
-
-//     const user = await UserAdmin.findOne({ adminID })
-//     if (!user) return next(new AppError("Invalid Credentials", 404))
-//     const checkPassword = await user.comparePasswords(password)
-//     if (!checkPassword) return next(new AppError("Invalid Credentials", 404))
-
-//     //continue with execution
-//     // getToken(user, res)
-//     res.status(200).json({
-//       status: "success",
-//       message: "Login Successful",
-//       user: {
-//         _id: user._id,
-//         isMainAdmin: user.isMainAdmin,
-//         firstName: user.firstName,
-//         lastName: user.lastName,
-//         profileImage: user.profileImage,
-//         email: user.email,
-//         isSubmitFullDetails: user.isSubmitFullDetails
-//       }
-//     })
-//     // console.log(user)
-//   }
-// )
+import {
+  validateAdmin,
+  validateCompleteRegistration
+} from "../validators/admin"
+import cloudinary from "../config/cloudinary"
+import fs from "fs"
+import { adminUpdateProfileResults, sanitizePhone } from "../utils/helpers"
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -44,6 +17,7 @@ declare module "express-serve-static-core" {
   }
 }
 
+//-----------------login admin----------------------
 const adminLogin = catchAsync(
   async (req: Request<{}, {}, ReqBody>, res: Response, next: NextFunction) => {
     const { adminID, password } = req.body
@@ -58,40 +32,187 @@ const adminLogin = catchAsync(
     if (error) {
       const errorInputs = error.details[0].message
       console.log(errorInputs)
-      return next(createError("Invalid Credentialsgjhghj", 400))
+      return next(createError("Invalid Credentials", 400))
     }
     const admin = await req.context?.services?.userAdmin.login({
       adminID,
       password
     })
 
-    res.status(200).json(admin)
+    return res.status(200).json(admin)
   }
 )
+
+//----------complete registration of admin----------------------
+
+const completeRegistration = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // const { country, placeOfResidence, email, phoneNumber, position, region } = req.body
+    const changePhoneNumToGhanaCode = sanitizePhone(req.body.phoneNumber)
+
+    const { error } = validateCompleteRegistration(req.body)
+    console.log(error)
+
+    if (error) {
+      const errorInputs = error.details[0].message
+      console.log(errorInputs)
+      return next(createError(`${errorInputs}`, 400))
+    }
+    const admin = await req.context?.services?.userAdmin.completeRegistration({
+      ...req.body,
+      phoneNumber: changePhoneNumToGhanaCode,
+      _id: req.user._id
+    })
+    console.log(admin)
+    return res.status(200).json(admin)
+  }
+)
+
+//-------get current active admin----------------------
 
 const getCurrentAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).json({
-      user: {
-        isMainAdmin: req.user.isMainAdmin,
-        firstName: req.user.firstName,
-        lastName: req.user.lastName,
-        profileImage: req.user.profileImage,
-        email: req.user.email
-      }
+    // console.log(req.user)
+    return res.status(200).json({
+      _id: req.user._id,
+      role: req.user.role,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      profileImage: req.user.profileImage,
+      email: req.user.email,
+      isSubmitFullDetails: req.user.isSubmitFullDetails
     })
   }
 )
 
-const logout = catchAsync(
+//-------get admin profile info for update----------------------
+
+const getAdminProfileInfo = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.cookie("jwt", "", {
-      expires: new Date(0)
-    })
-    res.status(200).json({
-      status: "success",
-      message: "Logout Successful"
+    console.log(req.user)
+    return res.status(200).json({
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      profileImage: req.user.profileImage,
+      email: req.user.email,
+      country: req.user.country,
+      region: req.user.region,
+      placeOfResidence: req.user.placeOfResidence,
+      phoneNumber: req.user.phoneNumber,
+      languages: req.user.languages,
+      address: req.user.address,
+      zipCode: req.user.zipCode
     })
   }
 )
-export { adminLogin, logout, getCurrentAdmin }
+//----------update profile of admin----------------------
+
+const adminUpdateProfile = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    //----change phone number to add countrycode 233*********** ------------------
+    const changePhoneNumToGhanaCode = sanitizePhone(req.body.phoneNumber)
+
+    //-----manipulate languages string into an array---------------
+    const languagesArr = req.body.languages
+      .split(" ")
+      .filter((item: string) => item !== "")
+
+    //-----------------check if there is no image selected by user----------------------
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return adminUpdateProfileResults(req, res, {
+        ...req.body,
+        languages: languagesArr,
+        phoneNumber: changePhoneNumToGhanaCode,
+        _id: req.user._id
+      })
+    }
+
+    // console.log(req.body)
+    // console.log(req.user)
+    // console.log(req.files)
+
+    const file1 = req.files?.profileImage
+
+    console.log(file1)
+
+    let imageData
+    let mimetype
+    // Check if it's a single file
+    if (file1 instanceof Array) {
+      // If it's an array, access the first file
+      imageData = file1[0].data
+      mimetype = file1[0].mimetype
+    } else {
+      // If it's a single file
+      imageData = file1?.data
+      mimetype = file1?.mimetype
+    }
+
+    console.log(imageData)
+
+    // Convert image to base64
+    const tobase64 = imageData!.toString("base64")
+    //-----------------If user selects a new image, check if the has an old image in the datatabse, if so delete the old one from cloudinary and upload a new one----------------------
+    const checkPublickId = req.user.cloudianryPublicId
+    if (checkPublickId) {
+      // Delete old image from Cloudinary
+      await cloudinary.uploader.destroy(checkPublickId)
+
+      // Upload new image to Cloudinary
+      const upload = await cloudinary.uploader.upload(
+        `data:${mimetype};base64,${tobase64}`,
+        {
+          folder: "upci-church-uploads"
+        }
+      )
+
+      const newBody = {
+        ...req.body,
+        phoneNumber: changePhoneNumToGhanaCode,
+        languages: languagesArr,
+        profileImage: upload.secure_url,
+        cloudianryPublicId: upload.public_id
+      }
+      console.log(newBody)
+
+      return adminUpdateProfileResults(req, res, {
+        ...newBody,
+        _id: req.user._id
+      })
+    }
+
+    //-----------------if user is now about to add a profile image----------------------
+
+    // Upload to Cloudinary
+    const upload = await cloudinary.uploader.upload(
+      `data:${mimetype};base64,${tobase64}`,
+      {
+        folder: "upci-church-uploads"
+      }
+    )
+
+    const newBody = {
+      ...req.body,
+      profileImage: upload.secure_url,
+      cloudianryPublicId: upload.public_id,
+      languages: languagesArr,
+      phoneNumber: changePhoneNumToGhanaCode
+    }
+    console.log(newBody)
+    return adminUpdateProfileResults(req, res, {
+      ...newBody,
+      _id: req.user._id
+    })
+  }
+
+  // }
+)
+
+export {
+  adminLogin,
+  completeRegistration,
+  getCurrentAdmin,
+  getAdminProfileInfo,
+  adminUpdateProfile
+}

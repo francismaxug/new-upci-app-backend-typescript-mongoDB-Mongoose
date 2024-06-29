@@ -1,18 +1,22 @@
 import express from "express"
 import { Request, Response, NextFunction } from "express-serve-static-core"
-export const app = express()
 import cookieParser from "cookie-parser"
+import fileUpload from "express-fileupload"
 import morgan from "morgan"
 import connectDB from "../models/serve"
 import handleError from "../middleware/customError"
 import userRouter from "../routes/api/adminRoute"
 import cors from "cors"
-import { Config, config } from "../config/serve"
+import { Config } from "../config/serve"
 import { IAppContext } from "../types/app"
 import { startServices } from "../services/serve"
+export const app = express()
 
 export const startApp = async (config: Config) => {
   try {
+    app.listen(config.initApp.port, () => {
+      console.log(`Server is running on port ${config.initApp.port}`)
+    })
     const appContext: IAppContext = {}
     appContext.queryDB = await connectDB(config.dbString)
 
@@ -29,11 +33,11 @@ export const startApp = async (config: Config) => {
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: true }))
-    app.use((req:Request, res:Response, next:NextFunction) => {
+    app.use((req: Request, res: Response, next: NextFunction) => {
       req.context = appContext
       next()
-    
     })
+    app.use(fileUpload({}))
     app.use("/api/v1/church", userRouter)
     app.use(handleError)
     app.all("*", (req, res) => {
@@ -41,9 +45,6 @@ export const startApp = async (config: Config) => {
         status: "fail",
         message: `Can't find ${req.originalUrl} on this server`
       })
-    })
-    app.listen(config.initApp.port, () => {
-      console.log(`Server is running on port ${config.initApp.port}`)
     })
   } catch (error) {
     throw error
