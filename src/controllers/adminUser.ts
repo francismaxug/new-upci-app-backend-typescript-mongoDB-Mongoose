@@ -89,7 +89,8 @@ const getCurrentAdmin = catchAsync(
 
 const getAdminProfileInfo = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.user)
+    // console.log(req.user)
+    console.log("hello")
     return res.status(200).json({
       firstName: req.user.firstName,
       lastName: req.user.lastName,
@@ -109,6 +110,7 @@ const getAdminProfileInfo = catchAsync(
 
 const adminUpdateProfile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // console.log("hii",req.body)
     //----change phone number to add countrycode 233*********** ------------------
     const changePhoneNumToGhanaCode = sanitizePhone(req.body.phoneNumber)
 
@@ -134,7 +136,7 @@ const adminUpdateProfile = catchAsync(
 
     const file1 = req.files?.profileImage
 
-    console.log(file1)
+    // console.log(file1)
 
     let imageData
     let mimetype
@@ -199,7 +201,7 @@ const adminUpdateProfile = catchAsync(
       languages: languagesArr,
       phoneNumber: changePhoneNumToGhanaCode
     }
-    console.log(newBody)
+    // console.log(newBody)
     return adminUpdateProfileResults(req, res, {
       ...newBody,
       _id: req.user._id

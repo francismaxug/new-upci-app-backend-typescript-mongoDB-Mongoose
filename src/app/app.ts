@@ -42,7 +42,7 @@ export const startApp = async (config: Config) => {
     app.use(handleError)
     app.all("*", (req, res) => {
       res.status(404).json({
-        status: "fail",
+        status: "failed",
         message: `Can't find ${req.originalUrl} on this server`
       })
     })
