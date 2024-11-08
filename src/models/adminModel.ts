@@ -42,15 +42,15 @@ const userAdminSchema = new Schema<IUserSchema>(
       type: String,
       default: ""
     },
-    address:{
-      type:String,
+    address: {
+      type: String,
       default: ""
     },
     zipCode: {
       type: String,
       default: ""
     },
-    cloudianryPublicId:{
+    cloudianryPublicId: {
       type: String,
       default: ""
     },
@@ -71,7 +71,7 @@ const userAdminSchema = new Schema<IUserSchema>(
         "Ministry Leader"
       ],
       type: String,
-      default: "Admin"
+      default: "Head Pastor"
     },
 
     isSubmitFullDetails: {

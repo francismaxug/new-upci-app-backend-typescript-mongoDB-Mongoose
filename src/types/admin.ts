@@ -32,6 +32,7 @@ export interface IUserSchema extends IUserAdmin, Document {
   _id: Types.ObjectId
   comparePasswords(password: string): Promise<boolean>
   adminID: string
+  role: string
   position: string
   country: string
   address: string
@@ -68,6 +69,29 @@ export interface IUserProfileCompleteInfo
     "firstName" | "lastName" | "isSubmitFullDetails" | "profileImage" | "role"
   > {
   _id: Types.ObjectId
+}
+
+export interface IGeoLocation {
+  ip: string
+  continentCode: string
+  continentName: string
+  countryCode: string
+  countryName: string
+  countryNameNative: string
+  officialCountryName: string
+  regionCode: string
+  regionName: string
+  cityGeoNameId: number
+  city: string
+  latitude: number
+  longitude: number
+  capital: string
+  phoneCode: string
+  countryFlagEmoj: string
+  countryFlagEmojUnicode: string
+  isEu: boolean
+  borders: string[]
+  topLevelDomains: string[]
 }
 
 export interface IAdminEditProfileInfo

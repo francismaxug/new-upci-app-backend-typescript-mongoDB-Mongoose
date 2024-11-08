@@ -8,8 +8,10 @@ import {
   validateCompleteRegistration
 } from "../validators/admin"
 import cloudinary from "../config/cloudinary"
-import fs from "fs"
 import { adminUpdateProfileResults, sanitizePhone } from "../utils/helpers"
+import Apiip from "apiip.net"
+import resultsLocation from "../location"
+import { IGeoLocation } from "../types/admin"
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -34,6 +36,9 @@ const adminLogin = catchAsync(
       console.log(errorInputs)
       return next(createError("Invalid Credentials", 400))
     }
+    // const apiip = Apiip('f3e954e8-4601-4ff7-9fc1-bef3581f7bf0', { ssl: false })
+    // const results = await resultsLocation as IGeoLocation
+    // console.log("results",results)
     const admin = await req.context?.services?.userAdmin.login({
       adminID,
       password
@@ -90,19 +95,22 @@ const getCurrentAdmin = catchAsync(
 const getAdminProfileInfo = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // console.log(req.user)
-    console.log("hello")
+    // console.log("hello")
     return res.status(200).json({
       firstName: req.user.firstName,
+      role: req.user.role,
       lastName: req.user.lastName,
       profileImage: req.user.profileImage,
       email: req.user.email,
       country: req.user.country,
+      position: req.user.position,
       region: req.user.region,
       placeOfResidence: req.user.placeOfResidence,
       phoneNumber: req.user.phoneNumber,
       languages: req.user.languages,
       address: req.user.address,
-      zipCode: req.user.zipCode
+      zipCode: req.user.zipCode,
+      createdAt: req.user.createdAt
     })
   }
 )
