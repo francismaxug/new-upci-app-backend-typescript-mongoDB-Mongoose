@@ -8,6 +8,9 @@ const express_1 = __importDefault(require("express"));
 const auth_1 = require("../../middleware/auth");
 const router = express_1.default.Router();
 router.post("/login", adminUser_1.adminLogin);
-router.get("/logout", adminUser_1.logout);
+router.patch("/complete-registration", auth_1.protect, adminUser_1.completeRegistration);
+// router.get("/logout", logout)
 router.get("/getCurrentAdmin", auth_1.protect, adminUser_1.getCurrentAdmin);
+router.get("/admin/profileInfo", auth_1.protect, adminUser_1.getAdminProfileInfo);
+router.patch("/admin/updateprofile", auth_1.protect, adminUser_1.adminUpdateProfile);
 exports.default = router;

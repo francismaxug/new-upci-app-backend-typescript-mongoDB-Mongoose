@@ -16,18 +16,15 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const { Schema, model, models, SchemaTypes } = mongoose_1.default;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const userAdminSchema = new Schema({
-    isAdmin: {
-        type: Boolean,
-        default: true
-    },
-    isMainAdmin: {
-        type: Boolean,
-        default: false
-    },
     adminID: {
         type: String,
         unique: true,
         required: [true, "Admin ID is required"]
+    },
+    role: {
+        type: String,
+        enum: ["User", "AppAdmin", "AppSuperAdmin"],
+        default: "User"
     },
     firstName: {
         type: String,
@@ -57,9 +54,44 @@ const userAdminSchema = new Schema({
         type: String,
         default: ""
     },
+    address: {
+        type: String,
+        default: ""
+    },
+    zipCode: {
+        type: String,
+        default: ""
+    },
+    cloudianryPublicId: {
+        type: String,
+        default: ""
+    },
+    languages: {
+        type: [String],
+        default: []
+    },
     password: {
         type: String,
         required: [true, "Password is required"]
+    },
+    position: {
+        enum: [
+            "Head Pastor",
+            "Deacon",
+            "Admin",
+            "Acountant / Finance",
+            "Ministry Leader"
+        ],
+        type: String,
+        default: "Head Pastor"
+    },
+    status: {
+        enum: [
+            "Active",
+            "Inactive"
+        ],
+        type: String,
+        default: "Active"
     },
     isSubmitFullDetails: {
         type: Boolean,
@@ -91,5 +123,6 @@ userAdminSchema.methods.comparePasswords = function (password) {
         return yield bcryptjs_1.default.compare(password, this.password);
     });
 };
-const UserAdmin = models.UserAdmin || model("UserAdmin", userAdminSchema);
+const UserAdmin = models.UserAdmin ||
+    model("UserAdmin", userAdminSchema);
 exports.default = UserAdmin;

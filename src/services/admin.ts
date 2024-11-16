@@ -2,8 +2,8 @@ import cloudinary from "../config/cloudinary"
 import {
   IAdminEditProfileInfo,
   IAdminLogin,
-  IUserAdmin,
-  IUserAdminModel,
+  IGeoLocation,
+
   IUserLoginSucces,
   IUserProfileCompleteInfo
 } from "../types/admin"
@@ -30,6 +30,7 @@ export class AdminServices extends InitAdmin {
         user: {
           _id: user._id,
           role: user.role,
+          status: user?.status,
           firstName: user.firstName,
           lastName: user.lastName,
           profileImage: user.profileImage,
@@ -38,6 +39,29 @@ export class AdminServices extends InitAdmin {
         }
       }
       return authAdmin
+    } catch (err) {
+      throw err
+    }
+  }
+
+  saveLocationDetails = async (location: IGeoLocation, admin: string) => {
+    try {
+      const user = await this.queryDB.adminModel.findOne({
+        adminID: admin
+      })
+
+      console.log(user)
+
+      await this.queryDB.geolocation.create({
+        user: user?._id,
+        name:user?.lastName + " " + user?.firstName,
+        role: user?.role,
+        country: location.countryName,
+        countryCode: location.countryCode,
+        region: location.regionName,
+        city: location.city,
+        ipAddress: location.ip
+      })
     } catch (err) {
       throw err
     }

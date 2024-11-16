@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import { Config } from "../config/serve"
 import { IInitDB } from "./initalize"
 import UserAdmin from "./adminModel"
+import UserLocation from "./geolocationModel"
 dotenv.config()
 let connected = false
 const connectDB = async (db:Config["dbString"]):Promise<IInitDB> => {
@@ -15,7 +16,8 @@ const connectDB = async (db:Config["dbString"]):Promise<IInitDB> => {
     console.log(`MongoDB Connected`)
 
     return {
-      adminModel: UserAdmin
+      adminModel: UserAdmin,
+      geolocation: UserLocation
     }
   } catch (error) {
     console.error(`Error: ${(error as Error).message}`)

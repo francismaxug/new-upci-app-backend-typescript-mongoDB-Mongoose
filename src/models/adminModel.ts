@@ -73,6 +73,14 @@ const userAdminSchema = new Schema<IUserSchema>(
       type: String,
       default: "Head Pastor"
     },
+    status: {
+      enum: [
+      "Active",
+      "Inactive"
+      ],
+      type: String,
+      default: "Active"
+    },
 
     isSubmitFullDetails: {
       type: Boolean,

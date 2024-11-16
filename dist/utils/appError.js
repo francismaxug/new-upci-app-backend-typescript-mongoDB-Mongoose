@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AppError = void 0;
 class AppError extends Error {
     constructor(message, statusCode) {
         super(message);
@@ -9,4 +10,8 @@ class AppError extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 }
-exports.default = AppError;
+exports.AppError = AppError;
+const createError = (message, statusCode) => {
+    return new AppError(message, statusCode);
+};
+exports.default = createError;

@@ -2,6 +2,7 @@ import { Document, Model, Types } from "mongoose"
 export interface IUserAdmin {
   role: string
   firstName: string
+  status: string
   phoneNumber: string
   lastName: string
   profileImage: string
@@ -16,6 +17,7 @@ export interface IUserLoginSucces {
     _id: Types.ObjectId
     role: string
     firstName: string
+    status: string
     lastName: string
     profileImage: string
     email: string
@@ -33,6 +35,7 @@ export interface IUserSchema extends IUserAdmin, Document {
   comparePasswords(password: string): Promise<boolean>
   adminID: string
   role: string
+  status: string
   position: string
   country: string
   address: string

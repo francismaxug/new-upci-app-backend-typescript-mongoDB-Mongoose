@@ -12,6 +12,8 @@ import { adminUpdateProfileResults, sanitizePhone } from "../utils/helpers"
 import Apiip from "apiip.net"
 import resultsLocation from "../location"
 import { IGeoLocation } from "../types/admin"
+import UserLocation from "../models/geolocationModel"
+import { permit } from "../utils/permission"
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -37,16 +39,51 @@ const adminLogin = catchAsync(
       return next(createError("Invalid Credentials", 400))
     }
     // const apiip = Apiip('f3e954e8-4601-4ff7-9fc1-bef3581f7bf0', { ssl: false })
-    // const results = await resultsLocation as IGeoLocation
-    // console.log("results",results)
+    const results = (await resultsLocation) as IGeoLocation
+    // console.log("results", results)
     const admin = await req.context?.services?.userAdmin.login({
       adminID,
       password
     })
 
+    const check = permit(admin?.user?.role!, "save:info")
+    console.log(check)
+    if (check)
+      await req.context?.services?.userAdmin.saveLocationDetails(
+        results,
+        adminID
+      )
+
     return res.status(200).json(admin)
   }
 )
+// const rateLimit = catchAsync(
+//   async (req: Request<{}, {}, ReqBody>, res: Response, next: NextFunction) => {
+//     const { adminID, password } = req.body
+
+//     if (!adminID || !password) {
+//       return next(createError("Please provide email and password", 400))
+//     }
+
+//     const { error } = validateAdmin({ adminID, password })
+//     console.log(error)
+
+//     if (error) {
+//       const errorInputs = error.details[0].message
+//       console.log(errorInputs)
+//       return next(createError("Invalid Credentials", 400))
+//     }
+//     // const apiip = Apiip('f3e954e8-4601-4ff7-9fc1-bef3581f7bf0', { ssl: false })
+//     // const results = await resultsLocation as IGeoLocation
+//     // console.log("results",results)
+//     const admin = await req.context?.services?.userAdmin.login({
+//       adminID,
+//       password
+//     })
+
+//     return res.status(200).json(admin)
+//   }
+// )
 
 //----------complete registration of admin----------------------
 
@@ -68,7 +105,7 @@ const completeRegistration = catchAsync(
       phoneNumber: changePhoneNumToGhanaCode,
       _id: req.user._id
     })
-    console.log(admin)
+    // console.log(admin)
     return res.status(200).json(admin)
   }
 )
