@@ -3,12 +3,13 @@ import {
   IAdminEditProfileInfo,
   IAdminLogin,
   IGeoLocation,
-
   IUserLoginSucces,
   IUserProfileCompleteInfo
 } from "../types/admin"
 import { IAppContext, InitAdmin } from "../types/app"
 import createError from "../utils/appError"
+import { generateRandomCode, message_template } from "../utils/helpers"
+import { sendSMS } from "../utils/sms"
 
 export class AdminServices extends InitAdmin {
   constructor(context: IAppContext) {
@@ -30,6 +31,7 @@ export class AdminServices extends InitAdmin {
         user: {
           _id: user._id,
           role: user.role,
+          phoneNumber: user.phoneNumber,
           status: user?.status,
           firstName: user.firstName,
           lastName: user.lastName,
@@ -54,7 +56,7 @@ export class AdminServices extends InitAdmin {
 
       await this.queryDB.geolocation.create({
         user: user?._id,
-        name:user?.lastName + " " + user?.firstName,
+        name: user?.lastName + " " + user?.firstName,
         role: user?.role,
         country: location.countryName,
         countryCode: location.countryCode,
@@ -113,6 +115,45 @@ export class AdminServices extends InitAdmin {
       )
 
       return admin
+    } catch (err) {
+      throw err
+    }
+  }
+  adminRequestResetCode = async (input: string, phone: string) => {
+    try {
+      const findAdmin = await this.queryDB.adminModel.findOne({
+        phoneNumber: input
+      })
+
+      if (!findAdmin) throw createError("Phone number not found", 404)
+
+      const code = await generateRandomCode()
+
+      await this.queryDB.code.create({
+        code,
+        user: findAdmin._id
+      })
+      const message = message_template(findAdmin?.lastName, code as string)
+      // const isSent = await sendSMS(message, input)
+
+      // console.log(isSent)
+      // if (!isSent) throw createError("Failed to send SMS", 500)
+      return {
+        status: "success",
+        message: "Code has been sent to your phone number",
+        code,
+        user: {
+          _id: findAdmin._id,
+          role: findAdmin.role,
+          phoneNumber: phone,
+          status: findAdmin?.status,
+          firstName: findAdmin.firstName,
+          lastName: findAdmin.lastName,
+          profileImage: findAdmin.profileImage,
+          email: findAdmin.email,
+          isSubmitFullDetails: findAdmin.isSubmitFullDetails
+        }
+      }
     } catch (err) {
       throw err
     }

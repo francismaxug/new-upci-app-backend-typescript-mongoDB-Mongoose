@@ -18,6 +18,7 @@ export interface IUserLoginSucces {
     role: string
     firstName: string
     status: string
+    phoneNumber: string
     lastName: string
     profileImage: string
     email: string

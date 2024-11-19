@@ -8,10 +8,14 @@ import {
   validateCompleteRegistration
 } from "../validators/admin"
 import cloudinary from "../config/cloudinary"
-import { adminUpdateProfileResults, sanitizePhone } from "../utils/helpers"
+import {
+  adminUpdateProfileResults,
+  generateRandomCode,
+  sanitizePhone
+} from "../utils/helpers"
 import Apiip from "apiip.net"
 import resultsLocation from "../location"
-import { IGeoLocation } from "../types/admin"
+import { IGeoLocation, IUserAdmin } from "../types/admin"
 import UserLocation from "../models/geolocationModel"
 import { permit } from "../utils/permission"
 
@@ -47,7 +51,7 @@ const adminLogin = catchAsync(
     })
 
     const check = permit(admin?.user?.role!, "save:info")
-    console.log(check)
+    // console.log(check)
     if (check)
       await req.context?.services?.userAdmin.saveLocationDetails(
         results,
@@ -252,8 +256,21 @@ const adminUpdateProfile = catchAsync(
       _id: req.user._id
     })
   }
+)
 
-  // }
+const requestForCode = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // const { country, placeOfResidence, email, phoneNumber, position, region } = req.body
+    const changePhoneNumToGhanaCode = sanitizePhone(req.body.phoneNumber)
+    console.log(changePhoneNumToGhanaCode)
+    const admin = await req.context?.services?.userAdmin.adminRequestResetCode(
+      changePhoneNumToGhanaCode,
+      req.body.phoneNumber
+    )
+    // console.log(admin)
+
+    return res.status(200).json(admin)
+  }
 )
 
 export {
@@ -261,5 +278,6 @@ export {
   completeRegistration,
   getCurrentAdmin,
   getAdminProfileInfo,
-  adminUpdateProfile
+  adminUpdateProfile,
+  requestForCode
 }

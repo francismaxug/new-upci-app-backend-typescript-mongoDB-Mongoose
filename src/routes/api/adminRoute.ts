@@ -3,7 +3,8 @@ import {
   completeRegistration,
   getCurrentAdmin,
   getAdminProfileInfo,
-  adminUpdateProfile
+  adminUpdateProfile,
+  requestForCode
 } from "../../controllers/adminUser"
 import express from "express"
 import { protect } from "../../middleware/auth"
@@ -15,5 +16,6 @@ router.patch("/complete-registration", protect, completeRegistration)
 router.get("/getCurrentAdmin", protect, getCurrentAdmin)
 router.get("/admin/profileInfo", protect, getAdminProfileInfo)
 router.patch("/admin/updateprofile", protect, adminUpdateProfile)
+router.post("/admin/get-reset-code", requestForCode)
 
 export default router

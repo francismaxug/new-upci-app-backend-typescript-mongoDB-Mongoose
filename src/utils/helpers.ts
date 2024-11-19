@@ -29,3 +29,34 @@ export async function adminUpdateProfileResults(
     isSubmitFullDetails: req.user.isSubmitFullDetails
   })
 }
+
+export function generateRandomCode() {
+  return new Promise((resolve) => {
+    const codeLength = 5
+    let code = ""
+
+    for (let i = 0; i < codeLength; i++) {
+      const digit = Math.floor(Math.random() * 10) // Generate a random digit from 0 to 9
+      code += digit.toString()
+    }
+
+    resolve(code)
+  })
+}
+
+export const message_template = (name: string, code: string) => {
+  return `Hello ${name}, your password reset code is: ${code}. This code will expire in 10 minutes. Kindly ignore this message if you did not request for a password reset`
+}
+
+//  function generateRandomCode() {
+//   let code = ""
+
+//   for (let i = 0; i <= 4; i++) {
+//     console.log(i)
+//     const random_number = Math.floor(Math.random() * 10)
+//     console.log(random_number)
+
+//     code += random_number
+//   }
+//   return code
+// }

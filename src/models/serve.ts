@@ -4,10 +4,10 @@ import { Config } from "../config/serve"
 import { IInitDB } from "./initalize"
 import UserAdmin from "./adminModel"
 import UserLocation from "./geolocationModel"
+import ResetCode from "./codeModel"
 dotenv.config()
 let connected = false
-const connectDB = async (db:Config["dbString"]):Promise<IInitDB> => {
-
+const connectDB = async (db: Config["dbString"]): Promise<IInitDB> => {
   try {
     await mongoose.connect(db.uri || "")
     connected = true
@@ -17,7 +17,8 @@ const connectDB = async (db:Config["dbString"]):Promise<IInitDB> => {
 
     return {
       adminModel: UserAdmin,
-      geolocation: UserLocation
+      geolocation: UserLocation,
+      code: ResetCode
     }
   } catch (error) {
     console.error(`Error: ${(error as Error).message}`)
