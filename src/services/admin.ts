@@ -1,3 +1,4 @@
+import { Types } from "mongoose"
 import cloudinary from "../config/cloudinary"
 import {
   IAdminEditProfileInfo,
@@ -119,13 +120,15 @@ export class AdminServices extends InitAdmin {
       throw err
     }
   }
+
   adminRequestResetCode = async (input: string, phone: string) => {
     try {
       const findAdmin = await this.queryDB.adminModel.findOne({
         phoneNumber: input
       })
 
-      if (!findAdmin) throw createError("Phone number not found", 404)
+      if (!findAdmin) throw createError("User does not exist", 404)
+        // console.log(findAdmin)
 
       const code = await generateRandomCode()
 
@@ -134,10 +137,11 @@ export class AdminServices extends InitAdmin {
         user: findAdmin._id
       })
       const message = message_template(findAdmin?.lastName, code as string)
-      // const isSent = await sendSMS(message, input)
+      const isSent = await sendSMS(message, input)
 
       // console.log(isSent)
-      // if (!isSent) throw createError("Failed to send SMS", 500)
+      if (!isSent) throw createError("Failed to send SMS", 500)
+      console.log(code)
       return {
         status: "success",
         message: "Code has been sent to your phone number",
@@ -153,6 +157,51 @@ export class AdminServices extends InitAdmin {
           email: findAdmin.email,
           isSubmitFullDetails: findAdmin.isSubmitFullDetails
         }
+      }
+    } catch (err) {
+      throw err
+    }
+  }
+
+  adminSendsSecreteCode = async (userId: Types.ObjectId, code: string) => {
+    try {
+      const findAdmin = await this.queryDB.code
+        .findOne({
+          user: userId,
+          code,
+          isUsed: false
+        })
+        .sort({
+          createdAt: -1
+        })
+
+      // console.log(findAdmin)
+
+      if (!findAdmin) throw createError("Invalid or expired code", 404)
+
+      findAdmin.isUsed = true
+      await findAdmin.save()
+
+      return {
+        status: "success"
+      }
+    } catch (err) {
+      throw err
+    }
+  }
+
+  adminResetPassword = async (userId: Types.ObjectId, password: string) => {
+    try {
+      const findAdmin = await this.queryDB.adminModel.findById(userId)
+      console.log(findAdmin)
+
+      if (!findAdmin) throw createError("User does not exist", 404)
+
+      findAdmin.password = password
+      await findAdmin.save()
+      return {
+        status: "success",
+        message: "Password reset successful"
       }
     } catch (err) {
       throw err

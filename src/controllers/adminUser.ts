@@ -262,10 +262,36 @@ const requestForCode = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // const { country, placeOfResidence, email, phoneNumber, position, region } = req.body
     const changePhoneNumToGhanaCode = sanitizePhone(req.body.phoneNumber)
-    console.log(changePhoneNumToGhanaCode)
+    // console.log(changePhoneNumToGhanaCode)
     const admin = await req.context?.services?.userAdmin.adminRequestResetCode(
       changePhoneNumToGhanaCode,
       req.body.phoneNumber
+    )
+    // console.log(admin)
+
+    return res.status(200).json(admin)
+  }
+)
+const checkCodeSent = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // const { country, placeOfResidence, email, phoneNumber, position, region } = req.body
+
+    const admin = await req.context?.services?.userAdmin.adminSendsSecreteCode(
+      req.user._id,
+      req.body.code
+    )
+    // console.log(admin)
+
+    return res.status(200).json(admin)
+  }
+)
+const resetPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // const { country, placeOfResidence, email, phoneNumber, position, region } = req.body
+
+    const admin = await req.context?.services?.userAdmin.adminResetPassword(
+      req.user._id,
+      req.body?.newPassword
     )
     // console.log(admin)
 
@@ -279,5 +305,7 @@ export {
   getCurrentAdmin,
   getAdminProfileInfo,
   adminUpdateProfile,
-  requestForCode
+  requestForCode,
+  checkCodeSent,
+  resetPassword
 }

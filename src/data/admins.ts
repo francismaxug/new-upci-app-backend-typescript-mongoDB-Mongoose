@@ -10,19 +10,22 @@ const admin = [
     password: bcrypt.hashSync(process.env.ADMIN_PASSWORD!, int),
     role: process.env.ADMIN_1_ROLE || "",
     firstName: process.env.MAIN_ADMIN_FIRST_NAME || "",
-    lastName: process.env.MAIN_ADMIN_LAST_NAME || ""
+    lastName: process.env.MAIN_ADMIN_LAST_NAME || "",
+    phoneNumber: process.env.ADMIN_1_PHONE
   },
   {
     adminID: process.env.ADMIN_ID_2,
     password: bcrypt.hashSync(process.env.ADMIN_PASSWORD!, int),
     firstName: process.env.FIRST_ADMIN_FIRST_NAME || "",
-    lastName: process.env.FIRST_ADMIN_LAST_NAME || ""
+    lastName: process.env.FIRST_ADMIN_LAST_NAME || "",
+    phoneNumber: process.env.ADMIN_2_PHONE
   },
   {
     adminID: process.env.ADMIN_ID_3,
     password: bcrypt.hashSync(process.env.ADMIN_PASSWORD!, int),
     firstName: process.env.SECOND_ADMIN_FIRST_NAME || "",
-    lastName: process.env.SECOND_ADMIN_LAST_NAME || ""
+    lastName: process.env.SECOND_ADMIN_LAST_NAME || "",
+    phoneNumber: process.env.ADMIN_3_PHONE
   },
 
   {
@@ -30,7 +33,8 @@ const admin = [
     password: bcrypt.hashSync(process.env.ADMIN_PASSWORD!, int),
     role: process.env.ADMIN_4_ROLE || "",
     firstName: process.env.SUPER_ADMIN_FIRST_NAME || "",
-    lastName: process.env.SUPER_ADMIN_LAST_NAME || ""
+    lastName: process.env.SUPER_ADMIN_LAST_NAME || "",
+    phoneNumber: process.env.ADMIN_4_PHONE
   }
 ]
 

@@ -13,7 +13,6 @@ declare module "express-serve-static-core" {
   }
 }
 
-
 //  const aj = arcjet({
 //   // Get your site key from https://app.arcjet.com and set it as an environment
 //   // variable rather than hard coding.
@@ -59,7 +58,7 @@ const protect = catchAsync(
     const currentUser = await UserAdmin.findById(decodeUser.user._id).select(
       "-password"
     )
-    if (!currentUser) return next(createError("no token found", 404))
+    if (!currentUser) return next(createError("Token expired", 404))
     // console.log("heyy", currentUser)
     req.user = currentUser
     next()
@@ -85,4 +84,4 @@ const protect = catchAsync(
 //   }
 // )
 
-export { protect}
+export { protect }

@@ -40,7 +40,9 @@ const userAdminSchema = new Schema<IUserSchema>(
     },
     phoneNumber: {
       type: String,
-      default: ""
+      default: "",
+      unique: true,
+      required: [true, "Phone number is required"]
     },
     address: {
       type: String,
@@ -74,10 +76,7 @@ const userAdminSchema = new Schema<IUserSchema>(
       default: "Head Pastor"
     },
     status: {
-      enum: [
-      "Active",
-      "Inactive"
-      ],
+      enum: ["Active", "Inactive"],
       type: String,
       default: "Active"
     },

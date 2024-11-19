@@ -5,7 +5,13 @@ const validateAdminInput = (schema: Joi.ObjectSchema<any>) => (payload: any) =>
   schema.validate(payload, { abortEarly: true })
 const adminValidation = Joi.object({
   adminID: Joi.string().min(6).max(6).required(),
-  password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")).required()
+  password: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*-_+=])[A-Za-z0-9!@#$%^&*-_+=]+$"
+      )
+    )
+    .required()
 })
 const validateAdmin = validateAdminInput(adminValidation)
 
@@ -22,8 +28,8 @@ const adminCompleteRegistrationValidation = Joi.object({
       tlds: { allow: ["com", "net", "gh", "info"] }
     })
     .required(),
-    position:Joi.string().required(),
-    region:Joi.string().required()
+  position: Joi.string().required(),
+  region: Joi.string().required()
 })
 
 const validateCompleteRegistration = validateAdminCompleteRegistration(
