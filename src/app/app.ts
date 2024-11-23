@@ -24,7 +24,10 @@ export const startApp = async (config: Config) => {
     appContext.services = await startServices(appContext)
 
     const corsOptions = {
-      origin: "http://localhost:3000",
+      origin:
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:3000"
+          : "https://upci-church-app.vercel.app",
       credentials: true
     }
     if (process.env.NODE_ENV === "development") {
