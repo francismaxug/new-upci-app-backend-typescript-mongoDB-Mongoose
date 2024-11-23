@@ -57,7 +57,7 @@ export class AdminServices extends InitAdmin {
         adminID: admin
       })
 
-      console.log(user)
+      // console.log(user)
 
       await this.queryDB.geolocation.create({
         user: user?._id,
@@ -197,7 +197,7 @@ export class AdminServices extends InitAdmin {
   adminResetPassword = async (userId: Types.ObjectId, password: string) => {
     try {
       const findAdmin = await this.queryDB.adminModel.findById(userId)
-      console.log(findAdmin)
+      // console.log(findAdmin)
 
       if (!findAdmin) throw createError("User does not exist", 404)
 
