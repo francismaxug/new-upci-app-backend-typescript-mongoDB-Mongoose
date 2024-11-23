@@ -51,7 +51,7 @@ const adminLogin = catchAsync(
       password
     })
 
-    console.log(admin)
+    // console.log(admin)
 
     const check = permit(admin?.user?.role!, "save:info")
     // console.log(check)
@@ -100,7 +100,7 @@ const completeRegistration = catchAsync(
     const changePhoneNumToGhanaCode = sanitizePhone(req.body.phoneNumber)
 
     const { error } = validateCompleteRegistration(req.body)
-    console.log(error)
+    // console.log(error)
 
     if (error) {
       const errorInputs = error.details[0].message
@@ -203,7 +203,7 @@ const adminUpdateProfile = catchAsync(
       mimetype = file1?.mimetype
     }
 
-    console.log(imageData)
+    // console.log(imageData)
 
     // Convert image to base64
     const tobase64 = imageData!.toString("base64")
