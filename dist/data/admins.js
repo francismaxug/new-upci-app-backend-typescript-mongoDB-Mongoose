@@ -7,36 +7,36 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const int = parseInt(process.env.HASH_NUMBER);
-const isAdmin = Boolean(process.env.IS_ADMIN);
 const admin = [
     {
         adminID: process.env.ADMIN_ID_1,
         password: bcryptjs_1.default.hashSync(process.env.ADMIN_PASSWORD, int),
-        isAdmin: isAdmin,
-        isMainAdmin: true,
-        firstName: "Ps. Elvis",
-        lastName: "Ashiabi"
+        role: process.env.ADMIN_1_ROLE || "",
+        firstName: process.env.MAIN_ADMIN_FIRST_NAME || "",
+        lastName: process.env.MAIN_ADMIN_LAST_NAME || "",
+        phoneNumber: process.env.ADMIN_1_PHONE
     },
     {
         adminID: process.env.ADMIN_ID_2,
         password: bcryptjs_1.default.hashSync(process.env.ADMIN_PASSWORD, int),
-        isAdmin: isAdmin,
-        firstName: "Deac. David",
-        lastName: "Atinga"
+        firstName: process.env.FIRST_ADMIN_FIRST_NAME || "",
+        lastName: process.env.FIRST_ADMIN_LAST_NAME || "",
+        phoneNumber: process.env.ADMIN_2_PHONE
     },
     {
         adminID: process.env.ADMIN_ID_3,
         password: bcryptjs_1.default.hashSync(process.env.ADMIN_PASSWORD, int),
-        isAdmin: isAdmin,
-        firstName: "Mr. Francis",
-        lastName: "Aidoo"
+        firstName: process.env.SECOND_ADMIN_FIRST_NAME || "",
+        lastName: process.env.SECOND_ADMIN_LAST_NAME || "",
+        phoneNumber: process.env.ADMIN_3_PHONE
     },
     {
         adminID: process.env.ADMIN_ID_4,
         password: bcryptjs_1.default.hashSync(process.env.ADMIN_PASSWORD, int),
-        isAdmin: isAdmin,
-        firstName: "Atinga",
-        lastName: "Francis"
+        role: process.env.ADMIN_4_ROLE || "",
+        firstName: process.env.SUPER_ADMIN_FIRST_NAME || "",
+        lastName: process.env.SUPER_ADMIN_LAST_NAME || "",
+        phoneNumber: process.env.ADMIN_4_PHONE
     }
 ];
 exports.default = admin;

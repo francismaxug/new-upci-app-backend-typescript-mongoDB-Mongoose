@@ -1,5 +1,4 @@
 import { AdminServices } from "./admin"
-import { IUserAdminModel } from "../types/admin"
 import { IAppContext } from "../types/app"
 
 export interface IServices {

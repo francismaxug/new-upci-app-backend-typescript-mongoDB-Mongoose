@@ -1,13 +1,21 @@
+import { Types } from "mongoose"
+import cloudinary from "../config/cloudinary"
 import {
+  IAdminEditProfileInfo,
   IAdminLogin,
-  IUserAdmin,
-  IUserAdminModel,
+  IGeoLocation,
   IUserLoginSucces,
   IUserProfileCompleteInfo
 } from "../types/admin"
 import { IAppContext, InitAdmin } from "../types/app"
 import createError from "../utils/appError"
-
+import {
+  generateRandomCode,
+  message_template,
+  sendEmailFunction
+} from "../utils/helpers"
+import { sendSMS } from "../utils/sms"
+// import sendEmailToUser from "../utils/email"
 export class AdminServices extends InitAdmin {
   constructor(context: IAppContext) {
     super(context)
@@ -27,8 +35,9 @@ export class AdminServices extends InitAdmin {
         message: "Login Successful",
         user: {
           _id: user._id,
-          isMainAdmin: user.isMainAdmin,
-          isSuperAdmin: user.isSuperAdmin,
+          role: user.role,
+          phoneNumber: user.phoneNumber,
+          status: user?.status,
           firstName: user.firstName,
           lastName: user.lastName,
           profileImage: user.profileImage,
@@ -41,13 +50,182 @@ export class AdminServices extends InitAdmin {
       throw err
     }
   }
-  completeRegistration= async(input:IUserProfileCompleteInfo) => {
-    try {
-      const user = await this.queryDB.adminModel.findByIdAndUpdate({})
-      }catch (err) {
-        throw err
-      }
-  
-}
 
+  saveLocationDetails = async (location: IGeoLocation, admin: string) => {
+    try {
+      const user = await this.queryDB.adminModel.findOne({
+        adminID: admin
+      })
+
+      console.log(user)
+
+      await this.queryDB.geolocation.create({
+        user: user?._id,
+        name: user?.lastName + " " + user?.firstName,
+        role: user?.role,
+        country: location.countryName,
+        countryCode: location.countryCode,
+        region: location.regionName,
+        city: location.city,
+        ipAddress: location.ip
+      })
+    } catch (err) {
+      throw err
+    }
+  }
+  completeRegistration = async (input: IUserProfileCompleteInfo) => {
+    try {
+      await this.queryDB.adminModel.findByIdAndUpdate(
+        input._id,
+        {
+          email: input.email,
+          country: input.country,
+          region: input.region,
+          placeOfResidence: input.placeOfResidence,
+          phoneNumber: input.phoneNumber,
+          position: input.position,
+          isSubmitFullDetails: true
+        },
+        { new: true }
+      )
+
+      return {
+        status: "success",
+        message: "Registration Successful"
+      }
+    } catch (err) {
+      throw err
+    }
+  }
+
+  adminUpdateProfile = async (input: IAdminEditProfileInfo) => {
+    try {
+      const admin = await this.queryDB.adminModel.findByIdAndUpdate(
+        input._id,
+        {
+          email: input.email,
+          country: input.country,
+          region: input.region,
+          placeOfResidence: input.placeOfResidence,
+          phoneNumber: input.phoneNumber,
+          zipCode: input.zipCode,
+          address: input.address,
+          languages: input.languages,
+          profileImage: input.profileImage,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          cloudianryPublicId: input.cloudianryPublicId
+        },
+        { new: true }
+      )
+
+      return admin
+    } catch (err) {
+      throw err
+    }
+  }
+
+  adminRequestResetCode = async (input: string, phone: string) => {
+    try {
+      const findAdmin = await this.queryDB.adminModel.findOne({
+        phoneNumber: input
+      })
+
+      if (!findAdmin) throw createError("User does not exist", 404)
+      // console.log(findAdmin)
+
+      const code = await generateRandomCode()
+
+      await this.queryDB.code.create({
+        code,
+        user: findAdmin._id
+      })
+      const message = message_template(findAdmin?.lastName, code as string)
+      const isSent = await sendSMS(message, input)
+
+      // console.log(isSent)
+      if (!isSent) throw createError("Failed to send SMS", 500)
+      console.log(code)
+      return {
+        status: "success",
+        message: "Code has been sent to your phone number",
+        code,
+        user: {
+          _id: findAdmin._id,
+          role: findAdmin.role,
+          phoneNumber: phone,
+          status: findAdmin?.status,
+          firstName: findAdmin.firstName,
+          lastName: findAdmin.lastName,
+          profileImage: findAdmin.profileImage,
+          email: findAdmin.email,
+          isSubmitFullDetails: findAdmin.isSubmitFullDetails
+        }
+      }
+    } catch (err) {
+      throw err
+    }
+  }
+
+  adminSendsSecreteCode = async (userId: Types.ObjectId, code: string) => {
+    try {
+      const findAdmin = await this.queryDB.code
+        .findOne({
+          user: userId,
+          code,
+          isUsed: false
+        })
+        .sort({
+          createdAt: -1
+        })
+
+      // console.log(findAdmin)
+
+      if (!findAdmin) throw createError("Invalid or expired code", 404)
+
+      findAdmin.isUsed = true
+      await findAdmin.save()
+
+      return {
+        status: "success"
+      }
+    } catch (err) {
+      throw err
+    }
+  }
+
+  adminResetPassword = async (userId: Types.ObjectId, password: string) => {
+    try {
+      const findAdmin = await this.queryDB.adminModel.findById(userId)
+      console.log(findAdmin)
+
+      if (!findAdmin) throw createError("User does not exist", 404)
+
+      findAdmin.password = password
+      await findAdmin.save()
+
+      const res = sendEmailFunction({
+        name: findAdmin?.lastName,
+        email: findAdmin?.email
+      }) as {
+        text: string
+        email: string
+        message: string
+        subject: string
+      }
+
+      // await sendEmailToUser({
+      //   email: res.email,
+      //   message: res.message,
+      //   subject: res.subject,
+      //   text: res.text
+      // })
+      return {
+        status: "success",
+        message: "Password reset successful"
+      }
+    } catch (err) {
+      throw err
+    }
+  }
 }

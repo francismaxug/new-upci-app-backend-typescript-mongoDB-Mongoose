@@ -9,6 +9,7 @@ import { config } from "./config/serve"
 connectDB(config.dbString)
 const importData = async () => {
   try {
+    await UserAdmin.deleteMany()
     await UserAdmin.insertMany(admin)
 
     console.log("Data imported successfully")
