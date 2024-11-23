@@ -29,7 +29,7 @@ declare module "express-serve-static-core" {
 const adminLogin = catchAsync(
   async (req: Request<{}, {}, ReqBody>, res: Response, next: NextFunction) => {
     const { adminID, password } = req.body
-    console.log(req)
+    // console.log(req)
 
     if (!adminID || !password) {
       return next(createError("Please provide email and password", 400))
@@ -50,6 +50,8 @@ const adminLogin = catchAsync(
       adminID,
       password
     })
+
+    console.log(admin)
 
     const check = permit(admin?.user?.role!, "save:info")
     // console.log(check)
