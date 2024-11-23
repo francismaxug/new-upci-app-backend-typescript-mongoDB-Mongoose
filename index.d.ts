@@ -10,6 +10,7 @@ declare global {
   }
 }
 
+
 declare namespace nodemailerSendgrid {
   interface SendgridOptions {
     apiKey: string
