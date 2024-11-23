@@ -60,3 +60,14 @@ export const message_template = (name: string, code: string) => {
 //   }
 //   return code
 // }
+
+
+export function sendEmailFunction  (user: any, ) {
+  const message = `Hello ${user.name}, Your password reset was successful`
+  return {
+    email: user.email,
+    subject: `password reset success`,
+    message,
+    text: `password reset success`
+  }
+}

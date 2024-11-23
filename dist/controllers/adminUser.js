@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminUpdateProfile = exports.getAdminProfileInfo = exports.getCurrentAdmin = exports.completeRegistration = exports.adminLogin = void 0;
+exports.resetPassword = exports.checkCodeSent = exports.requestForCode = exports.adminUpdateProfile = exports.getAdminProfileInfo = exports.getCurrentAdmin = exports.completeRegistration = exports.adminLogin = void 0;
 const appError_1 = __importDefault(require("../utils/appError"));
 const catchAsync_1 = require("../utils/catchAsync");
 const admin_1 = require("../validators/admin");
@@ -42,7 +42,7 @@ const adminLogin = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(vo
         password
     }));
     const check = (0, permission_1.permit)((_c = admin === null || admin === void 0 ? void 0 : admin.user) === null || _c === void 0 ? void 0 : _c.role, "save:info");
-    console.log(check);
+    // console.log(check)
     if (check)
         yield ((_e = (_d = req.context) === null || _d === void 0 ? void 0 : _d.services) === null || _e === void 0 ? void 0 : _e.userAdmin.saveLocationDetails(results, adminID));
     return res.status(200).json(admin);
@@ -180,7 +180,31 @@ const adminUpdateProfile = (0, catchAsync_1.catchAsync)((req, res, next) => __aw
     const newBody = Object.assign(Object.assign({}, req.body), { profileImage: upload.secure_url, cloudianryPublicId: upload.public_id, languages: languagesArr, phoneNumber: changePhoneNumToGhanaCode });
     // console.log(newBody)
     return (0, helpers_1.adminUpdateProfileResults)(req, res, Object.assign(Object.assign({}, newBody), { _id: req.user._id }));
-})
-// }
-);
+}));
 exports.adminUpdateProfile = adminUpdateProfile;
+const requestForCode = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _j, _k;
+    // const { country, placeOfResidence, email, phoneNumber, position, region } = req.body
+    const changePhoneNumToGhanaCode = (0, helpers_1.sanitizePhone)(req.body.phoneNumber);
+    // console.log(changePhoneNumToGhanaCode)
+    const admin = yield ((_k = (_j = req.context) === null || _j === void 0 ? void 0 : _j.services) === null || _k === void 0 ? void 0 : _k.userAdmin.adminRequestResetCode(changePhoneNumToGhanaCode, req.body.phoneNumber));
+    // console.log(admin)
+    return res.status(200).json(admin);
+}));
+exports.requestForCode = requestForCode;
+const checkCodeSent = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // const { country, placeOfResidence, email, phoneNumber, position, region } = req.body
+    var _l, _m;
+    const admin = yield ((_m = (_l = req.context) === null || _l === void 0 ? void 0 : _l.services) === null || _m === void 0 ? void 0 : _m.userAdmin.adminSendsSecreteCode(req.user._id, req.body.code));
+    // console.log(admin)
+    return res.status(200).json(admin);
+}));
+exports.checkCodeSent = checkCodeSent;
+const resetPassword = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // const { country, placeOfResidence, email, phoneNumber, position, region } = req.body
+    var _o, _p, _q;
+    const admin = yield ((_p = (_o = req.context) === null || _o === void 0 ? void 0 : _o.services) === null || _p === void 0 ? void 0 : _p.userAdmin.adminResetPassword(req.user._id, (_q = req.body) === null || _q === void 0 ? void 0 : _q.newPassword));
+    // console.log(admin)
+    return res.status(200).json(admin);
+}));
+exports.resetPassword = resetPassword;

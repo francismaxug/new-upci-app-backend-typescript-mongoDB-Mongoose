@@ -16,6 +16,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const adminModel_1 = __importDefault(require("./adminModel"));
 const geolocationModel_1 = __importDefault(require("./geolocationModel"));
+const codeModel_1 = __importDefault(require("./codeModel"));
 dotenv_1.default.config();
 let connected = false;
 const connectDB = (db) => __awaiter(void 0, void 0, void 0, function* () {
@@ -26,7 +27,8 @@ const connectDB = (db) => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`MongoDB Connected`);
         return {
             adminModel: adminModel_1.default,
-            geolocation: geolocationModel_1.default
+            geolocation: geolocationModel_1.default,
+            code: codeModel_1.default
         };
     }
     catch (error) {

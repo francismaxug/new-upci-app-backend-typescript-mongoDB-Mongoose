@@ -9,9 +9,13 @@ import {
 } from "../types/admin"
 import { IAppContext, InitAdmin } from "../types/app"
 import createError from "../utils/appError"
-import { generateRandomCode, message_template } from "../utils/helpers"
+import {
+  generateRandomCode,
+  message_template,
+  sendEmailFunction
+} from "../utils/helpers"
 import { sendSMS } from "../utils/sms"
-
+// import sendEmailToUser from "../utils/email"
 export class AdminServices extends InitAdmin {
   constructor(context: IAppContext) {
     super(context)
@@ -128,7 +132,7 @@ export class AdminServices extends InitAdmin {
       })
 
       if (!findAdmin) throw createError("User does not exist", 404)
-        // console.log(findAdmin)
+      // console.log(findAdmin)
 
       const code = await generateRandomCode()
 
@@ -199,6 +203,23 @@ export class AdminServices extends InitAdmin {
 
       findAdmin.password = password
       await findAdmin.save()
+
+      const res = sendEmailFunction({
+        name: findAdmin?.lastName,
+        email: findAdmin?.email
+      }) as {
+        text: string
+        email: string
+        message: string
+        subject: string
+      }
+
+      // await sendEmailToUser({
+      //   email: res.email,
+      //   message: res.message,
+      //   subject: res.subject,
+      //   text: res.text
+      // })
       return {
         status: "success",
         message: "Password reset successful"

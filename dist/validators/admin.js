@@ -9,7 +9,9 @@ const joi_1 = __importDefault(require("joi"));
 const validateAdminInput = (schema) => (payload) => schema.validate(payload, { abortEarly: true });
 const adminValidation = joi_1.default.object({
     adminID: joi_1.default.string().min(6).max(6).required(),
-    password: joi_1.default.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")).required()
+    password: joi_1.default.string()
+        .pattern(new RegExp("^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*-_+=])[A-Za-z0-9!@#$%^&*-_+=]+$"))
+        .required()
 });
 const validateAdmin = validateAdminInput(adminValidation);
 exports.validateAdmin = validateAdmin;

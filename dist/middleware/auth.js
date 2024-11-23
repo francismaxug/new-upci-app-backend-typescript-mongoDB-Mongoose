@@ -56,7 +56,7 @@ const protect = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 
         return next((0, appError_1.default)("no token found", 404));
     const currentUser = yield adminModel_1.default.findById(decodeUser.user._id).select("-password");
     if (!currentUser)
-        return next((0, appError_1.default)("no token found", 404));
+        return next((0, appError_1.default)("Token expired", 404));
     // console.log("heyy", currentUser)
     req.user = currentUser;
     next();

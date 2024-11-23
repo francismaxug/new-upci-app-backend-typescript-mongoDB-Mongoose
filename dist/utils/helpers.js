@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminUpdateProfileResults = exports.sanitizePhone = void 0;
+exports.sendEmailFunction = exports.message_template = exports.generateRandomCode = exports.adminUpdateProfileResults = exports.sanitizePhone = void 0;
 function sanitizePhone(phone) {
     if (phone.charAt(0) === "0") {
         const phoneCat = phone.slice(1);
@@ -36,3 +36,39 @@ function adminUpdateProfileResults(req, res, data) {
     });
 }
 exports.adminUpdateProfileResults = adminUpdateProfileResults;
+function generateRandomCode() {
+    return new Promise((resolve) => {
+        const codeLength = 5;
+        let code = "";
+        for (let i = 0; i < codeLength; i++) {
+            const digit = Math.floor(Math.random() * 10); // Generate a random digit from 0 to 9
+            code += digit.toString();
+        }
+        resolve(code);
+    });
+}
+exports.generateRandomCode = generateRandomCode;
+const message_template = (name, code) => {
+    return `Hello ${name}, your password reset code is: ${code}. This code will expire in 10 minutes. Kindly ignore this message if you did not request for a password reset`;
+};
+exports.message_template = message_template;
+//  function generateRandomCode() {
+//   let code = ""
+//   for (let i = 0; i <= 4; i++) {
+//     console.log(i)
+//     const random_number = Math.floor(Math.random() * 10)
+//     console.log(random_number)
+//     code += random_number
+//   }
+//   return code
+// }
+function sendEmailFunction(user) {
+    const message = `Hello ${user.name}, Your password reset was successful`;
+    return {
+        email: user.email,
+        subject: `password reset success`,
+        message,
+        text: `password reset success`
+    };
+}
+exports.sendEmailFunction = sendEmailFunction;
